@@ -1,0 +1,4 @@
+service: default
+runtime: python310
+entrypoint: gunicorn -b :$PORT wsgi:app
+instance_class: F4_1G

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Stroke Risk Prediction</title>
+    <link rel="icon" href="https://example.com/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #5a5a5a 100%);
+            background-size: cover;
+            color: #eee;
+            font-size: 18px;
+        }
+
+        .result-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        #result {
+            padding: 10px;
+            border: 2px solid black;
+            background-image: linear-gradient(to right, black, rgba(255, 0, 0, 0.449));
+            color: white;
+            width: 300px;
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .container {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            background-color: rgba(34, 34, 34, 0.9);
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        .form-control,
+        .form-check-label {
+            color: #eee;
+        }
+
+        .form-control {
+            background-color: #333;
+            border-color: #555;
+            border-radius: 5px;
+        }
+
+        .form-check-input:checked {
+            background-color: #0069d9;
+            border-color: #eee;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .toast-header-custom {
+            background-color: #222;
+            color: #ff00009f;
+        }
+
+        .toast-body-custom {
+            background-color: #222;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.1rem;
+        }
+
+        .form-check-label {
+            font-size: 1rem;
+        }
+
+        input[type="submit"] {
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <h1 class="my-4 text-center">Are You at Risk of a Stroke?</h1>
+        <form id="user-data">
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" class="form-control" id="age" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select class="form-control" id="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="height_feet">Height (feet):</label>
+                    <input type="number" class="form-control" id="height_feet" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="height_inches">Height (inches):</label>
+                    <input type="number" class="form-control" id="height_inches" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="weight_pounds">Weight (pounds):</label>
+                <input type="number" class="form-control" id="weight_pounds" required>
+            </div>
+            <div class="form-group">
+                <label for="avg_blood_sugar">Average Blood Sugar Level (mg/dL):</label>
+                <input type="number" class="form-control" id="avg_blood_sugar" required>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="ever_married">
+                <label class="form-check-label" for="ever_married">Are/Were you Married?</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="hypertension">
+                <label class="form-check-label" for="hypertension">Do you have a history of Hypertension?</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="heart_disease">
+                <label class="form-check-label" for="heart_disease">Do you have a History of Heart Disease?</label>
+            </div>
+            <div class="form-group">
+                <label for="work_type">Work Type:</label>
+                <select class="form-control" id="work_type" required>
+                    <option value="private">Private</option>
+                    <option value="govt">Government</option>
+                    <option value="self_employed">Self Employed</option>
+                    <option value="never_worked">Never Worked</option>
+                </select>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="smoking_status">
+                <label class="form-check-label" for="smoking_status">Were/Are you associated with Smoking as a
+                    habit?</label>
+            </div>
+            <div class="form-group d-flex">
+                <input type="submit" class="btn btn-primary" value="Submit">
+            </div>
+        </form>
+        <div class="result-container">
+            <div id="result" class="my-4 text-center"></div>
+        </div>
+        <div id="chart" class="my-4"></div>
+    </div>
+    <div class="toast" id="high-risk-toast"
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);" data-bs-autohide="false">
+        <div class="toast-header toast-header-custom">
+            <strong class="me-auto">Warning</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body toast-body-custom">
+            You are currently at a very High Risk of Stroke. Consider changing your lifestyle. Have a look at resources
+            made available by CDC: https://www.cdc.gov/stroke/prevention.htm
+        </div>
+    </div>
+    <script>
+        $("a").on('click', function (event) {
+            if (this.hash !== "") {
+                event.preventDefault();
+                const hash = this.hash;
+                $('html, body').animate({
+                    scrollTop: $(hash).offset().top
+                }, 800, function () {
+                    window.location.hash = hash;
+                });
+            }
+        });
+        $("#user-data").on("submit", function (event) {
+            event.preventDefault();
+
+            const workType = $("#work_type").val();
+
+            const data = {
+                gender: $("#gender").val() === "female" ? 1 : 0,
+                age: $("#age").val(),
+                height_feet: parseFloat($("#height_feet").val()),
+                height_inches: parseFloat($("#height_inches").val()),
+                weight_pounds: parseFloat($("#weight_pounds").val()),
+                avg_blood_sugar: $("#avg_blood_sugar").val(),
+                hypertension: $("#hypertension").prop("checked") ? 1 : 0,
+                heart_disease: $("#heart_disease").prop("checked") ? 1 : 0,
+                smoking_status: $("#smoking_status").prop("checked") ? 1 : 0,
+                ever_married: $("#ever_married").prop("checked") ? 1 : 0,
+                work_type_private: workType === "private" ? 1 : 0,
+                work_type_govt_job: workType === "govt" ? 1 : 0,
+                work_type_self_employed: workType === "self_employed" ? 1 : 0,
+                work_type_never_worked: workType === "never_worked" ? 1 : 0,
+            };
+
+            $.ajax({
+                url: "/api/predict",
+                type: "POST",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (response) {
+                    const allOver05 = response.probability.every(p => p > 0.5837065995154248);
+
+                    if (allOver05) {
+                        const toastEl = document.getElementById('high-risk-toast');
+                        const toast = new bootstrap.Toast(toastEl);
+                        toast.show();
+                    }
+                    const firstProbability = response.probability[0];
+                    const threshold = 0.5837065995154248;
+                    let resultMessage = "";
+
+                    if (firstProbability > threshold) {
+                        resultMessage = "Stroke Risk Detected";
+                    } else if (response.probability.some(p => p > threshold)) {
+                        resultMessage = "You are at Increased Risk of getting a Stroke in the next 15 years.";
+                    } else {
+                        resultMessage = "You are not at risk of getting a Brain Stroke in the next 15 years.";
+                    }
+
+                    $("#result").html(resultMessage);
+                    $("#result").css("display", "inline-block");
+                    const trace = {
+                        x: response.age,
+                        y: response.probability,
+                        mode: 'lines',
+                        name: 'Stroke Risk Probability',
+                        line: {
+                            color: 'red'
+                        }
+                    };
+
+                    const layout = {
+                        title: 'Stroke Risk Probability for the Next 15 Years',
+                        xaxis: {
+                            title: 'Age'
+                        },
+                        yaxis: {
+                            title: 'Probability'
+                        }
+                    };
+
+                    Plotly.newPlot('chart', [trace], layout);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", xhr.responseText);
+                },
+                dataType: "json"
+            });
+        });
+    </script>
+</body>
+
+</html>
